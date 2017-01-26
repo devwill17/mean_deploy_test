@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html ng-app='myApp'>
+  <head>
+    <title>Players and Teams</title>
+ <!-- THESE TWO VERSIONS BELOW MUST MATCH (good thing bower will catch that for us, but be aware if you are using CDN's)!!! -->
+    <script src="angular/angular.js"></script>
+    <script src="angular-route/angular-route.js"></script>
+    <script>
+    ///////////////ROUTES////////////////
+    //  inject the ngRoute dependency in the module.
+    var myApp = angular.module('myApp', ['ngRoute']);
+    //  use the config method to set up routing:
+    myApp.config(function ($routeProvider) {
+      $routeProvider
+        .when('/',{
+            templateUrl: 'static/partials/players.html',
+        })
+        .when('/partial2',{
+            templateUrl: 'static/partials/teams.html'
+        })
+        .when('/partial3',{
+            templateUrl: 'static/partials/associations.html'
+        })
+        .otherwise({
+          redirectTo: '/'
+        });
+    });
+    //////////////Factories///////////////////
+    myApp.factory('playersFactory', function($http){
+      var factory = {};
+
+      var players = [
+        {
+          name: "Mike",
+          team: ""
+        },
+        {
+          name: "Richard",
+          team: ""
+        },
+        {
+          name: "Miguel",
+          team: ""
+        }
+      ];
+
+      factory.getPlayers = function(callback){
+        callback(players);
+      };
+
+      factory.add = function(newPlayer, callback){
+        newPlayer.team = "";
+        players.push(newPlayer);
+        callback(players)
+      };
+
+      factory.delete = function(index, callback){
+        players.splice(index, 1);
+        callback(players);
+      };
+
+      factory.addAssociation = function(newAssociation, callback){
+        var index = parseInt(newAssociation.player);
+        players[index].team = newAssociation.team;
+        callback(players);
+      }
+
+      factory.deleteAssociation = function($index){
+        // var index = parseInt(clearAssociation);
+        console.log($index);
+        players[$index].team = "";
+      }
+
+      return factory;
+    });
+
+
+    myApp.factory('teamsFactory', function($http){
+      var factory = {};
+
+      var teams = [
+        {
+          name: "Raiders"
+        },
+        {
+          name: "Angels"
+        },
+        {
+          name: "Dodgers"
+        }
+      ];
+
+      factory.getTeams = function(callback){
+        callback(teams);
+      };
+
+      factory.add = function(newTeam, callback){
+        teams.push(newTeam);
+        callback(teams)
+      };
+
+      factory.delete = function(index, callback){
+        teams.splice(index, 1);
+        callback(teams);
+      };
+
+      return factory;
+    });
+
+
+    ///////////////////Controllers////////////////
+    myApp.controller('CustomizePlayersController', function ($scope, playersFactory) {
+      $scope.players = [];
+
+      playersFactory.getPlayers(function(data){
+        $scope.players = data;
+      });
+
+      $scope.addPlayer = function(){
+
+        playersFactory.add($scope.newPlayer, function(date){
+          $scope.players.data;
+        });
+
+        $scope.newPlayer = {};
+      };
+
+      $scope.deletePlayer = function(index){
+        console.log("deleting player");
+
+        playersFactory.delete(index, function(data){
+          $scope.players = data;
+        });
+      }
+    });
+
+    myApp.controller('CustomizeTeamsController', function ($scope, teamsFactory) {
+      $scope.teams = [];
+
+      teamsFactory.getTeams(function(data){
+        $scope.teams = data;
+      });
+
+      $scope.addTeam = function(){
+
+        teamsFactory.add($scope.newTeam, function(date){
+          $scope.teams.data;
+        });
+
+        $scope.newTeam = {};
+      };
+
+      $scope.deleteTeam = function(index){
+        console.log("deleting team");
+
+        teamsFactory.delete(index, function(data){
+          $scope.taems = data;
+        });
+      }
+    });
+
+    myApp.controller('CustomizeAssController', function ($scope, playersFactory, teamsFactory) {
+      $scope.players = [];
+      $scope.teams = [];
+
+      playersFactory.getPlayers(function(data){
+        $scope.players = data;
+      });
+
+      teamsFactory.getTeams(function(data){
+        $scope.teams = data;
+      });
+
+      $scope.addAssociation = function(){
+        console.log($scope.newAssociation)
+
+        playersFactory.addAssociation($scope.newAssociation, function(data){
+          $scope.players = data;
+        });
+        //use $index of player
+        //push team to team in player(index)
+        $scope.newAssociation = {};
+      }
+
+      $scope.clearAssociation = function($index){
+        // console.log($scope.clearAssociation)
+
+        playersFactory.deleteAssociation($index);
+      };
+
+    });
+
+    </script>
+
+
+  </head>
+  <body>
+    <div ng-app='myApp'>
+        <a href="#!/">Players</a> | <a href="#!/partial2">Teams</a> | <a href="#!/partial3">Associations</a>
+        <div ng-view="">
+        </div>
+    </div>
+  </body>
+</html>

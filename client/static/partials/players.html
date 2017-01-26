@@ -1,0 +1,18 @@
+<div ng-controller="CustomizePlayersController">
+
+      Name: <input type="text" ng-model="newPlayer.name">
+      <button ng-click ="addPlayer()">Add User</button>
+      <table>
+        <thead>
+          <th>Name:</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="p in players">
+            <td>{{p.name}}</td>
+            <td><button ng-click="deletePlayer($index)">Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+</div>
